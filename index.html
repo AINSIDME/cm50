@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CM50 — The VOO of Cryptocurrency</title>
+<meta name="description" content="Own the top 50 cryptocurrencies in a single, market-cap weighted asset. Join the CM50 waitlist for early access.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<!-- Supabase JS SDK (v2) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+/* ─── RESET & TOKENS ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#080A0F;--surface:#0D1017;--surface-2:#141820;--surface-3:#1C2230;
+  --border:rgba(255,255,255,0.07);--border-light:rgba(255,255,255,0.13);
+  --text-primary:#F0F2F7;--text-secondary:#8892A4;--text-muted:#4E5A6E;
+  --gold:#C9A84C;--gold-dim:rgba(201,168,76,0.15);--gold-glow:rgba(201,168,76,0.06);
+  --blue:#3B82F6;--blue-dim:rgba(59,130,246,0.12);
+  --green:#22C55E;--green-dim:rgba(34,197,94,0.10);
+  --red:#EF4444;--red-dim:rgba(239,68,68,0.12);
+  --purple:#8B5CF6;--purple-dim:rgba(139,92,246,0.12);
+  --teal:#14B8A6;--teal-dim:rgba(20,184,166,0.12);
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--text-primary);font-family:'Inter',-apple-system,sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ─── NAV ────────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;background:rgba(8,10,15,0.9);backdrop-filter:blur(16px);border-bottom:0.5px solid var(--border)}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text-primary);letter-spacing:.02em;cursor:pointer;text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:1.75rem;list-style:none}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:14px;transition:color .2s}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-admin{padding:7px 14px;background:var(--surface-3);border:0.5px solid var(--border-light);border-radius:6px;color:var(--text-secondary)!important;font-size:13px!important;cursor:pointer}
+.nav-admin:hover{color:var(--gold)!important;border-color:rgba(201,168,76,.3)!important}
+.nav-cta{padding:8px 20px;background:var(--gold);color:#080A0F!important;border-radius:6px;font-weight:500!important;font-size:14px!important}
+.nav-cta:hover{opacity:.88}
+
+/* ─── HERO ───────────────────────────────────────────────── */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 2rem 80px;position:relative}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,168,76,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 80% 80%,rgba(59,130,246,.05) 0%,transparent 60%);pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 0%,transparent 100%);pointer-events:none}
+.hero-content{position:relative;max-width:780px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:0.5px solid var(--gold);border-radius:100px;font-size:12px;font-weight:500;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2rem;background:var(--gold-glow)}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,7vw,76px);font-weight:400;line-height:1.05;letter-spacing:-.02em;color:var(--text-primary);margin-bottom:1.25rem}
+h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:clamp(17px,2.5vw,21px);color:var(--text-secondary);font-weight:300;max-width:500px;margin:0 auto 2.5rem;line-height:1.5}
+.hero-actions{display:flex;align-items:center;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--gold);color:#080A0F;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;text-decoration:none;transition:opacity .2s,transform .15s;font-family:inherit}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:transparent;color:var(--text-secondary);border:0.5px solid var(--border-light);border-radius:8px;font-size:15px;cursor:pointer;text-decoration:none;transition:color .2s,border-color .2s;font-family:inherit}
+.btn-ghost:hover{color:var(--text-primary);border-color:rgba(255,255,255,.25)}
+.ticker{margin-top:4rem;display:flex;justify-content:center;gap:2px;flex-wrap:wrap}
+.ticker-item{padding:16px 28px;background:var(--surface);border:0.5px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:4px}
+.ticker-item:first-child{border-radius:10px 0 0 10px}
+.ticker-item:last-child{border-radius:0 10px 10px 0}
+.ticker-val{font-size:22px;font-weight:500;color:var(--text-primary);font-variant-numeric:tabular-nums}
+.ticker-label{font-size:12px;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase}
+
+/* ─── GLASS CARD / FORMS ─────────────────────────────────── */
+.glass-card{background:rgba(20,24,32,.72);backdrop-filter:blur(20px);border:0.5px solid rgba(255,255,255,.09);border-radius:20px;padding:2.25rem;position:relative;overflow:hidden}
+.glass-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.45),transparent)}
+.form-group{margin-bottom:1rem}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.form-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:0.5px solid var(--border-light);border-radius:8px;font-family:inherit;font-size:14px;color:var(--text-primary);outline:none;transition:border-color .2s,background .2s}
+.form-input::placeholder{color:var(--text-muted)}
+.form-input:focus{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.03)}
+.form-input.error{border-color:rgba(239,68,68,.6)!important;animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.form-select{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:0.5px solid var(--border-light);border-radius:8px;font-family:inherit;font-size:14px;color:var(--text-primary);outline:none;cursor:pointer;transition:border-color .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234E5A6E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:rgba(255,255,255,.04)}
+.form-select:focus{border-color:rgba(201,168,76,.5)}
+.form-select option{background:#141820;color:var(--text-primary)}
+.wl-btn{width:100%;padding:14px;background:var(--gold);color:#080A0F;border:none;border-radius:8px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s,transform .15s;margin-top:.75rem}
+.wl-btn:hover:not(:disabled){opacity:.88;transform:translateY(-1px)}
+.wl-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.wl-btn .spinner{width:16px;height:16px;border:2px solid rgba(8,10,15,.3);border-top-color:#080A0F;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wl-count-strip{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(34,197,94,.06);border-radius:8px;margin-top:.875rem;font-size:13px;color:var(--text-secondary)}
+.wl-count-strip span{color:var(--text-primary);font-weight:500}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+.inline-err{font-size:12px;color:var(--red);margin-top:4px;display:none}
+.inline-err.show{display:block}
+.wl-success{text-align:center;padding:2rem 1rem;display:none}
+.wl-success-icon{width:56px;height:56px;border-radius:50%;background:var(--green-dim);border:0.5px solid rgba(34,197,94,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.wl-success-icon svg{width:26px;height:26px;stroke:var(--green);fill:none;stroke-width:2}
+.wl-success h3{font-size:18px;font-weight:500;margin-bottom:.5rem}
+.wl-success p{font-size:14px;color:var(--text-secondary);line-height:1.65}
+
+/* ─── WAITLIST HERO SECTION ──────────────────────────────── */
+.waitlist-hero-section{background:linear-gradient(135deg,rgba(201,168,76,.06) 0%,transparent 60%);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);padding:80px 2rem}
+.waitlist-hero-inner{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.waitlist-copy h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,42px);font-weight:400;line-height:1.15;margin-bottom:.75rem}
+.waitlist-copy p{color:var(--text-secondary);font-size:16px;line-height:1.65;margin-bottom:1.5rem}
+.trust-badges{display:flex;flex-direction:column;gap:10px}
+.trust-badge{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-secondary)}
+.trust-badge svg{flex-shrink:0;width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.5}
+
+/* ─── GENERAL SECTIONS ───────────────────────────────────── */
+section{padding:100px 2rem;max-width:1100px;margin:0 auto}
+.section-eyebrow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:1rem}
+h2{font-family:'DM Serif Display',serif;font-size:clamp(30px,4vw,46px);font-weight:400;line-height:1.15;color:var(--text-primary);margin-bottom:1rem}
+.section-lead{font-size:18px;color:var(--text-secondary);font-weight:300;max-width:560px;line-height:1.65}
+.divider{width:100%;height:1px;background:var(--border)}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;margin-top:4rem;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.how-card{background:var(--surface);padding:2.5rem;transition:background .2s}
+.how-card:hover{background:var(--surface-2)}
+.how-num{font-family:'DM Serif Display',serif;font-size:52px;color:rgba(201,168,76,.12);line-height:1;margin-bottom:1rem;font-weight:400}
+.how-icon{width:40px;height:40px;border-radius:10px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem}
+.how-icon svg{width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.5}
+.how-card h3{font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:.5rem}
+.how-card p{font-size:14px;color:var(--text-secondary);line-height:1.65}
+.composition{margin-top:4rem;background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:2.5rem}
+.comp-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.comp-label{font-size:13px;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase}
+.comp-rows{display:flex;flex-direction:column;gap:10px}
+.comp-row{display:grid;grid-template-columns:100px 1fr 60px;align-items:center;gap:12px;font-size:13px}
+.comp-name{color:var(--text-secondary)}
+.comp-bar-track{height:6px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden}
+.comp-bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold) 0%,rgba(201,168,76,.4) 100%);transform-origin:left;animation:barGrow .8s ease forwards}
+@keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.comp-pct{color:var(--text-muted);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.comp-more{margin-top:1.5rem;font-size:13px;color:var(--text-muted);text-align:center}
+.method-pill{display:inline-block;padding:3px 10px;background:var(--green-dim);color:var(--green);border-radius:100px;font-size:11px;font-weight:500}
+.benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:4rem}
+.benefit-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:2rem;transition:border-color .2s}
+.benefit-card:hover{border-color:var(--border-light)}
+.benefit-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-bottom:1.25rem}
+.benefit-card h3{font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:.5rem}
+.benefit-card p{font-size:14px;color:var(--text-secondary);line-height:1.7}
+.methodology-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;margin-top:4rem}
+.method-table{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;overflow:hidden}
+.method-row{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:0.5px solid var(--border);font-size:14px}
+.method-row:last-child{border-bottom:none}
+.method-key{color:var(--text-secondary)}
+.method-val{color:var(--text-primary);font-weight:500;text-align:right}
+.method-steps{display:flex;flex-direction:column;gap:24px}
+.method-step{display:flex;gap:16px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--gold-dim);border:0.5px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--gold);flex-shrink:0;margin-top:2px}
+.step-text h4{font-size:15px;font-weight:500;color:var(--text-primary);margin-bottom:4px}
+.step-text p{font-size:13px;color:var(--text-secondary);line-height:1.65}
+.faq-list{margin-top:4rem;display:flex;flex-direction:column;gap:2px}
+.faq-item{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;overflow:hidden}
+.faq-q{width:100%;background:none;border:none;padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:inherit;font-size:15px;font-weight:400;color:var(--text-primary);text-align:left;gap:1rem}
+.faq-q:hover{background:rgba(255,255,255,.02)}
+.faq-chevron{flex-shrink:0;width:16px;height:16px;stroke:var(--text-muted);fill:none;stroke-width:2;transition:transform .25s}
+.faq-item.open .faq-chevron{transform:rotate(180deg);stroke:var(--gold)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;font-size:14px;color:var(--text-secondary);line-height:1.7;padding:0 1.5rem}
+.faq-item.open .faq-a{max-height:220px;padding:0 1.5rem 1.25rem}
+
+/* ─── SURVEY SECTION ─────────────────────────────────────── */
+.survey-section{padding:100px 2rem;background:linear-gradient(180deg,rgba(139,92,246,.04) 0%,transparent 60%);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border)}
+.survey-inner{max-width:860px;margin:0 auto}
+.survey-header{text-align:center;margin-bottom:3.5rem}
+.survey-header h2{margin-bottom:.75rem}
+.survey-header p{color:var(--text-secondary);font-size:17px;max-width:520px;margin:0 auto}
+.survey-progress{display:flex;align-items:flex-start;gap:0;margin-bottom:2.5rem}
+.prog-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.prog-step:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:1.5px;background:var(--border);z-index:0}
+.prog-dot{width:27px;height:27px;border-radius:50%;border:1.5px solid var(--border-light);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--text-muted);z-index:1;transition:all .3s;position:relative}
+.prog-dot.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.prog-dot.done{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.prog-label{font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center}
+.survey-card{background:rgba(20,24,32,.65);backdrop-filter:blur(16px);border:0.5px solid rgba(255,255,255,.09);border-radius:20px;overflow:hidden}
+.survey-card::before{content:'';display:block;height:2px;background:linear-gradient(90deg,rgba(139,92,246,.6),rgba(201,168,76,.6),rgba(20,184,166,.6))}
+.survey-step{padding:2.5rem;display:none}
+.survey-step.active{display:block;animation:stepIn .3s ease}
+@keyframes stepIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.survey-q-label{font-size:12px;color:var(--gold);font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.75rem}
+.survey-q-text{font-family:'DM Serif Display',serif;font-size:clamp(18px,3vw,24px);color:var(--text-primary);font-weight:400;line-height:1.3;margin-bottom:2rem}
+.survey-options{display:flex;flex-direction:column;gap:9px}
+.survey-opt{width:100%;padding:13px 18px;background:rgba(255,255,255,.03);border:0.5px solid var(--border-light);border-radius:10px;font-family:inherit;font-size:14px;color:var(--text-secondary);text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s}
+.survey-opt:hover{background:rgba(201,168,76,.06);border-color:rgba(201,168,76,.3);color:var(--text-primary)}
+.survey-opt.selected{background:rgba(201,168,76,.1);border-color:var(--gold);color:var(--text-primary)}
+.survey-opt.selected .opt-radio{background:var(--gold);border-color:var(--gold)}
+.survey-opt.selected .opt-radio::after{opacity:1}
+.opt-radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-light);flex-shrink:0;position:relative;transition:all .2s}
+.opt-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:#080A0F;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0;transition:opacity .2s}
+.survey-nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 2.5rem;border-top:0.5px solid var(--border);background:rgba(8,10,15,.3)}
+.survey-back{padding:10px 20px;background:transparent;border:0.5px solid var(--border-light);border-radius:8px;font-family:inherit;font-size:14px;color:var(--text-secondary);cursor:pointer;transition:all .2s}
+.survey-back:hover{color:var(--text-primary);border-color:rgba(255,255,255,.25)}
+.survey-back:disabled{opacity:.3;cursor:default}
+.survey-next{padding:11px 24px;background:var(--gold);border:none;border-radius:8px;font-family:inherit;font-size:14px;font-weight:500;color:#080A0F;cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity .2s,transform .15s;min-width:110px;justify-content:center}
+.survey-next:hover:not(:disabled){opacity:.88;transform:translateY(-1px)}
+.survey-next:disabled{opacity:.35;cursor:default;transform:none}
+.survey-step-count{font-size:13px;color:var(--text-muted)}
+.survey-success{padding:3.5rem 2.5rem;text-align:center;display:none}
+.survey-success-ring{width:72px;height:72px;border-radius:50%;border:1.5px solid rgba(139,92,246,.4);background:rgba(139,92,246,.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;animation:ringPop .5s ease}
+@keyframes ringPop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.survey-success-ring svg{width:32px;height:32px;stroke:var(--purple);fill:none;stroke-width:1.5}
+.survey-success h3{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;margin-bottom:.75rem}
+.survey-success p{font-size:15px;color:var(--text-secondary);line-height:1.7;max-width:440px;margin:0 auto 1.5rem}
+.survey-live{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(139,92,246,.08);border:0.5px solid rgba(139,92,246,.25);border-radius:100px;font-size:13px;color:var(--purple)}
+
+/* ─── FOOTER WAITLIST ────────────────────────────────────── */
+.footer-waitlist{padding:80px 2rem;background:linear-gradient(135deg,rgba(201,168,76,.05) 0%,transparent 60%);border-top:0.5px solid var(--border)}
+.footer-waitlist-inner{max-width:640px;margin:0 auto;text-align:center}
+.footer-waitlist .glass-card{max-width:560px;margin:2.5rem auto 0;text-align:left}
+footer{border-top:0.5px solid var(--border);padding:2rem;text-align:center}
+.footer-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text-primary);margin-bottom:1rem}
+.footer-logo span{color:var(--gold)}
+.disclaimer{font-size:12px;color:var(--text-muted);max-width:600px;margin:0 auto;line-height:1.7}
+
+/* ─── REVEAL ─────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:0 1.25rem}
+  .nav-links{display:none}
+  section{padding:64px 1.25rem}
+  .waitlist-hero-inner,.methodology-wrap{grid-template-columns:1fr;gap:36px}
+  .how-grid{grid-template-columns:1fr}
+  .ticker{gap:1px}
+  .ticker-item{flex:1 1 80px}
+  .comp-row{grid-template-columns:80px 1fr 50px}
+  h1{font-size:clamp(36px,10vw,60px)}
+  .survey-step,.survey-nav,.survey-success{padding-left:1.25rem;padding-right:1.25rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─────────────────────────────────────────────── -->
+<nav>
+  <a href="#" class="nav-logo" onclick="scrollTo(0,0);return false">CM<span>50</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#benefits">Benefits</a></li>
+    <li><a href="#survey-section">Validate</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="admin.html" class="nav-admin">Admin</a></li>
+    <li><a href="#waitlist-bottom" class="nav-cta">Join Waitlist</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ─────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Coming soon &nbsp;·&nbsp; Institutional grade</div>
+    <h1>The <em>VOO</em> of<br>Cryptocurrency</h1>
+    <p class="hero-sub">Own the top 50 cryptocurrencies in a single asset. Broad market exposure, systematically managed.</p>
+    <div class="hero-actions">
+      <a href="#waitlist-top" class="btn-primary">Join the Waitlist <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></a>
+      <a href="#survey-section" class="btn-ghost">Take the survey</a>
+    </div>
+    <div class="ticker">
+      <div class="ticker-item"><span class="ticker-val">50</span><span class="ticker-label">Assets</span></div>
+      <div class="ticker-item"><span class="ticker-val">Monthly</span><span class="ticker-label">Rebalancing</span></div>
+      <div class="ticker-item"><span class="ticker-val">Mkt Cap</span><span class="ticker-label">Weighted</span></div>
+      <div class="ticker-item"><span class="ticker-val">100%</span><span class="ticker-label">Transparent</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── WAITLIST TOP ──────────────────────────────────────── -->
+<div class="waitlist-hero-section" id="waitlist-top">
+  <div class="waitlist-hero-inner">
+    <div class="waitlist-copy">
+      <div class="section-eyebrow">Early access</div>
+      <h2>Join the CM50<br>Waitlist</h2>
+      <p>Be among the first investors to gain access to the world's first simple crypto market index. Secure your spot before the public launch.</p>
+      <div class="trust-badges">
+        <div class="trust-badge"><svg viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>No spam, ever — only milestone updates</div>
+        <div class="trust-badge"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Early access before public launch</div>
+        <div class="trust-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Priority onboarding and support</div>
+        <div class="trust-badge"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Free to join — no commitment required</div>
+      </div>
+    </div>
+    <div>
+      <div class="glass-card">
+        <div id="topFormWrap">
+          <div style="margin-bottom:1.5rem"><p style="font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Reserve your spot</p><p style="font-size:13px;color:var(--text-secondary)">Takes 30 seconds. No credit card needed.</p></div>
+          <div class="form-group">
+            <label class="form-label">Email address <span style="color:var(--gold)">*</span></label>
+            <input type="email" id="topEmail" class="form-input" placeholder="you@example.com" autocomplete="email">
+            <div class="inline-err" id="topEmailErr">Please enter a valid email address.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">First name</label>
+            <input type="text" id="topName" class="form-input" placeholder="Optional" autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated investment amount</label>
+            <select id="topAmount" class="form-select">
+              <option value="">Select a range…</option>
+              <option value="under500">Under $500</option>
+              <option value="500-1000">$500 – $1,000</option>
+              <option value="1000-5000">$1,000 – $5,000</option>
+              <option value="5000-10000">$5,000 – $10,000</option>
+              <option value="10000+">$10,000+</option>
+            </select>
+          </div>
+          <button class="wl-btn" id="topBtn" onclick="submitWaitlist('top')">
+            <span id="topBtnLabel">Join the Waitlist</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg>
+          </button>
+          <div class="inline-err" id="topGenErr" style="margin-top:.5rem;text-align:center"></div>
+          <div class="wl-count-strip"><div class="live-dot"></div><span id="topCount">—</span>&nbsp;investors on the list</div>
+        </div>
+        <div class="wl-success" id="topSuccess">
+          <div class="wl-success-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h3>You're on the list!</h3>
+          <p>Thank you for joining the CM50 waitlist. We will notify you when early access becomes available.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── HOW IT WORKS ──────────────────────────────────────── -->
+<section id="how">
+  <div class="section-eyebrow reveal">How it works</div>
+  <h2 class="reveal">Simple by design.<br>Sophisticated underneath.</h2>
+  <p class="section-lead reveal">CM50 distills the entire crypto market into a single, rules-based index — the same approach that made passive investing dominant in equities.</p>
+  <div class="how-grid">
+    <div class="how-card reveal"><div class="how-num">01</div><div class="how-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><h3>Universe selection</h3><p>Each month we rank all liquid cryptocurrencies by 30-day average market capitalization and select the top 50 that meet our liquidity and exchange-listing thresholds.</p></div>
+    <div class="how-card reveal reveal-delay-1"><div class="how-num">02</div><div class="how-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><path d="M3 9h18M9 3v18"/></svg></div><h3>Market-cap weighting</h3><p>Constituents are weighted by free-float market capitalization, with a 20% single-asset cap to prevent overconcentration in any one holding.</p></div>
+    <div class="how-card reveal reveal-delay-2"><div class="how-num">03</div><div class="how-icon"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><h3>Monthly rebalancing</h3><p>On the first business day of each month, CM50 rebalances to reflect the updated universe and weights. Additions and removals are announced three days in advance.</p></div>
+  </div>
+  <div class="composition reveal">
+    <div class="comp-header"><div><div class="comp-label">Illustrative composition</div><div style="font-size:13px;color:var(--text-muted);margin-top:4px">Based on approximate current market caps</div></div><div class="method-pill">Top 10 shown</div></div>
+    <div class="comp-rows" id="compRows"></div>
+    <p class="comp-more">+ 40 additional constituents representing the remainder of the index</p>
+  </div>
+</section>
+
+<!-- ─── BENEFITS ──────────────────────────────────────────── -->
+<section id="benefits" style="padding-top:0">
+  <div class="divider"></div><div style="height:80px"></div>
+  <div class="section-eyebrow reveal">Benefits</div>
+  <h2 class="reveal">Built for serious<br>allocation.</h2>
+  <p class="section-lead reveal">CM50 brings the discipline of institutional index investing to digital assets.</p>
+  <div class="benefits-grid">
+    <div class="benefit-card reveal"><div class="benefit-dot"></div><h3>Market-cap weighted</h3><p>Allocations reflect the market's collective view of value. No active bets, no manager discretion — just systematic exposure.</p></div>
+    <div class="benefit-card reveal reveal-delay-1"><div class="benefit-dot"></div><h3>Broad diversification</h3><p>Fifty assets across layer-1 protocols, DeFi, infrastructure. Single-asset failure risk is diluted across the entire index.</p></div>
+    <div class="benefit-card reveal reveal-delay-2"><div class="benefit-dot"></div><h3>Transparent methodology</h3><p>Every rule is published and auditable. Inclusion criteria, weighting caps, and constituent lists are disclosed in advance.</p></div>
+    <div class="benefit-card reveal"><div class="benefit-dot"></div><h3>Monthly rebalancing</h3><p>The index adapts as the market evolves. Rising assets earn larger allocations; falling assets shrink.</p></div>
+    <div class="benefit-card reveal reveal-delay-1"><div class="benefit-dot"></div><h3>Institutional approach</h3><p>Index construction follows the same principles as equity index funds — rules-based, transparent, bias-free.</p></div>
+    <div class="benefit-card reveal reveal-delay-2"><div class="benefit-dot"></div><h3>Single allocation</h3><p>One position gives you the whole market. No portfolio construction, no rebalancing decisions required.</p></div>
+  </div>
+</section>
+
+<!-- ─── METHODOLOGY ───────────────────────────────────────── -->
+<section id="methodology" style="padding-top:0">
+  <div class="divider"></div><div style="height:80px"></div>
+  <div class="section-eyebrow reveal">Methodology</div>
+  <h2 class="reveal">Rules before<br>discretion, always.</h2>
+  <div class="methodology-wrap">
+    <div class="method-table reveal">
+      <div class="method-row"><span class="method-key">Index universe</span><span class="method-val">Top 50 by market cap</span></div>
+      <div class="method-row"><span class="method-key">Weighting</span><span class="method-val">Free-float market cap</span></div>
+      <div class="method-row"><span class="method-key">Single-asset cap</span><span class="method-val">20%</span></div>
+      <div class="method-row"><span class="method-key">Rebalance frequency</span><span class="method-val">Monthly</span></div>
+      <div class="method-row"><span class="method-key">Announcement lead</span><span class="method-val">3 business days</span></div>
+      <div class="method-row"><span class="method-key">Liquidity screen</span><span class="method-val">30-day avg. volume</span></div>
+      <div class="method-row"><span class="method-key">Stablecoin inclusion</span><span class="method-val"><span class="method-pill">Excluded</span></span></div>
+    </div>
+    <div class="method-steps reveal">
+      <div class="method-step"><div class="step-num">1</div><div class="step-text"><h4>Screen for eligibility</h4><p>Assets must be listed on at least two qualifying exchanges, meet a minimum 30-day average daily volume, and pass a basic regulatory flag check.</p></div></div>
+      <div class="method-step"><div class="step-num">2</div><div class="step-text"><h4>Rank by market capitalization</h4><p>Eligible assets are ranked by free-float market cap — circulating supply multiplied by 30-day average price — to determine the top 50.</p></div></div>
+      <div class="method-step"><div class="step-num">3</div><div class="step-text"><h4>Apply weighting and caps</h4><p>Each asset's weight equals its share of the total index market cap, capped at 20%. Excess weight is redistributed pro-rata.</p></div></div>
+      <div class="method-step"><div class="step-num">4</div><div class="step-text"><h4>Publish and rebalance</h4><p>The updated list and weights are published three business days before rebalancing. The index reconstitutes on the first business day monthly.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INVESTOR SURVEY ───────────────────────────────────── -->
+<div class="survey-section" id="survey-section">
+  <div class="survey-inner">
+    <div class="survey-header">
+      <div class="section-eyebrow reveal">Investor validation</div>
+      <h2 class="reveal">Would You Invest<br>in CM50?</h2>
+      <p class="reveal">Help us build the future of crypto index investing. Your answers shape the product — early supporters receive priority access at launch.</p>
+    </div>
+    <div class="survey-progress reveal" id="surveyProgress">
+      <div class="prog-step"><div class="prog-dot active" id="pd1">1</div><div class="prog-label">Investment</div></div>
+      <div class="prog-step"><div class="prog-dot" id="pd2">2</div><div class="prog-label">Motivation</div></div>
+      <div class="prog-step"><div class="prog-dot" id="pd3">3</div><div class="prog-label">Frequency</div></div>
+      <div class="prog-step"><div class="prog-dot" id="pd4">4</div><div class="prog-label">Objections</div></div>
+    </div>
+    <div class="survey-card reveal">
+      <!-- Q1 -->
+      <div class="survey-step active" id="ss1">
+        <div class="survey-q-label">Question 1 of 4</div>
+        <div class="survey-q-text">How much would you consider investing in CM50 if it launched today?</div>
+        <div class="survey-options" id="sq1">
+          <button class="survey-opt" onclick="pickOpt(this,'sq1','under100')"><div class="opt-radio"></div>Under $100</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq1','100-500')"><div class="opt-radio"></div>$100 – $500</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq1','500-1000')"><div class="opt-radio"></div>$500 – $1,000</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq1','1000-5000')"><div class="opt-radio"></div>$1,000 – $5,000</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq1','5000-10000')"><div class="opt-radio"></div>$5,000 – $10,000</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq1','10000+')"><div class="opt-radio"></div>$10,000+</button>
+        </div>
+      </div>
+      <!-- Q2 -->
+      <div class="survey-step" id="ss2">
+        <div class="survey-q-label">Question 2 of 4</div>
+        <div class="survey-q-text">What is the biggest reason you would buy CM50?</div>
+        <div class="survey-options" id="sq2">
+          <button class="survey-opt" onclick="pickOpt(this,'sq2','diversification')"><div class="opt-radio"></div>Diversification across 50 cryptocurrencies</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq2','rebalancing')"><div class="opt-radio"></div>Automatic monthly rebalancing</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq2','simplicity')"><div class="opt-radio"></div>Simplicity of owning one asset</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq2','longterm')"><div class="opt-radio"></div>Long-term exposure to the crypto market</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq2','methodology')"><div class="opt-radio"></div>Professional index methodology</button>
+        </div>
+      </div>
+      <!-- Q3 -->
+      <div class="survey-step" id="ss3">
+        <div class="survey-q-label">Question 3 of 4</div>
+        <div class="survey-q-text">How often do you currently invest in cryptocurrency?</div>
+        <div class="survey-options" id="sq3">
+          <button class="survey-opt" onclick="pickOpt(this,'sq3','never')"><div class="opt-radio"></div>Never</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq3','occasionally')"><div class="opt-radio"></div>Occasionally</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq3','monthly')"><div class="opt-radio"></div>Monthly</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq3','weekly')"><div class="opt-radio"></div>Weekly</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq3','daily')"><div class="opt-radio"></div>Daily</button>
+        </div>
+      </div>
+      <!-- Q4 -->
+      <div class="survey-step" id="ss4">
+        <div class="survey-q-label">Question 4 of 4</div>
+        <div class="survey-q-text">What would stop you from investing in CM50?</div>
+        <div class="survey-options" id="sq4">
+          <button class="survey-opt" onclick="pickOpt(this,'sq4','trust')"><div class="opt-radio"></div>Lack of trust</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq4','regulatory')"><div class="opt-radio"></div>Regulatory concerns</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq4','direct')"><div class="opt-radio"></div>Prefer buying crypto directly</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq4','fees')"><div class="opt-radio"></div>Fees</button>
+          <button class="survey-opt" onclick="pickOpt(this,'sq4','info')"><div class="opt-radio"></div>Need more information</button>
+        </div>
+      </div>
+      <!-- Success -->
+      <div class="survey-success" id="surveySuccess">
+        <div class="survey-success-ring"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Thank you for your feedback</h3>
+        <p>Thank you for helping shape CM50. Early supporters will receive priority access when the project launches.</p>
+        <div class="survey-live"><div class="live-dot"></div><span id="surveyCount">—</span>&nbsp;investors have shared their views</div>
+      </div>
+      <!-- Nav -->
+      <div class="survey-nav" id="surveyNav">
+        <button class="survey-back" id="surveyBack" onclick="surveyPrev()" disabled>← Back</button>
+        <span class="survey-step-count" id="surveyStepLabel">1 of 4</span>
+        <button class="survey-next" id="surveyNextBtn" onclick="surveyAdvance()" disabled>Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FAQ ───────────────────────────────────────────────── -->
+<section id="faq" style="padding-top:0">
+  <div class="divider"></div><div style="height:80px"></div>
+  <div class="section-eyebrow reveal">FAQ</div>
+  <h2 class="reveal">Common questions.</h2>
+  <div class="faq-list reveal">
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Why top 50 and not just the top 10?<svg class="faq-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="faq-a">The top 10 by market cap cover 80–90% of total crypto market cap but carry significant concentration risk. Extending to 50 assets captures meaningful diversification across different protocol categories, use cases, and ecosystems.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Why are stablecoins excluded?<svg class="faq-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="faq-a">Stablecoins are designed to maintain a fixed price and offer no capital appreciation or meaningful economic exposure to the crypto ecosystem. Including them would dilute returns and misrepresent the index objective.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What happens when an asset leaves the top 50?<svg class="faq-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="faq-a">An asset must fall below rank 55 before removal, and must reach rank 45 or above to be added. This buffer reduces unnecessary churn from assets hovering near the boundary.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is CM50 available to invest in now?<svg class="faq-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="faq-a">CM50 is currently in development and not yet available for investment. Join the waitlist to receive methodology updates, early access announcements, and launch details.</div></div>
+    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How is the 20% single-asset cap applied?<svg class="faq-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="faq-a">If any asset's weight exceeds 20%, the excess is redistributed proportionally across all other constituents iteratively until no constituent exceeds the cap.</div></div>
+  </div>
+</section>
+
+<!-- ─── WAITLIST BOTTOM ───────────────────────────────────── -->
+<div class="footer-waitlist" id="waitlist-bottom">
+  <div class="footer-waitlist-inner">
+    <div class="section-eyebrow" style="text-align:center">Reserve your access</div>
+    <h2 style="text-align:center">Be first when<br>CM50 launches.</h2>
+    <p style="color:var(--text-secondary);font-size:16px;text-align:center;max-width:440px;margin:0 auto">Get methodology updates, constituent previews, and priority access before public launch.</p>
+    <div class="glass-card">
+      <div id="bottomFormWrap">
+        <div class="form-group"><label class="form-label">Email address <span style="color:var(--gold)">*</span></label><input type="email" id="bottomEmail" class="form-input" placeholder="you@example.com" autocomplete="email"><div class="inline-err" id="bottomEmailErr">Please enter a valid email address.</div></div>
+        <div class="form-group"><label class="form-label">First name</label><input type="text" id="bottomName" class="form-input" placeholder="Optional" autocomplete="given-name"></div>
+        <div class="form-group"><label class="form-label">Estimated investment amount</label><select id="bottomAmount" class="form-select"><option value="">Select a range…</option><option value="under500">Under $500</option><option value="500-1000">$500 – $1,000</option><option value="1000-5000">$1,000 – $5,000</option><option value="5000-10000">$5,000 – $10,000</option><option value="10000+">$10,000+</option></select></div>
+        <button class="wl-btn" id="bottomBtn" onclick="submitWaitlist('bottom')"><span id="bottomBtnLabel">Join the Waitlist</span> <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></button>
+        <div class="inline-err" id="bottomGenErr" style="margin-top:.5rem;text-align:center"></div>
+        <div class="wl-count-strip"><div class="live-dot"></div><span id="bottomCount">—</span>&nbsp;investors already on the list</div>
+        <div style="display:flex;gap:20px;justify-content:center;margin-top:1rem;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No spam</span>
+          <span style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Early access</span>
+          <span style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Free to join</span>
+        </div>
+      </div>
+      <div class="wl-success" id="bottomSuccess">
+        <div class="wl-success-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h3>You're on the list!</h3>
+        <p>Thank you for joining the CM50 waitlist. We will notify you when early access becomes available.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">CM<span>50</span></div>
+  <p class="disclaimer">CM50 is under development and not currently available for investment. This page is for informational purposes only and does not constitute an offer to sell or a solicitation of an offer to buy any security. Past performance of any index is not indicative of future results. Cryptocurrency investments are subject to high market risk.</p>
+  <p style="font-size:12px;color:var(--text-muted);margin-top:1.5rem">© 2025 CM50. All rights reserved.</p>
+</footer>
+
+<script>
+/* ============================================================
+   CONFIG — replace with your Supabase project credentials
+   Dashboard → Settings → API
+   ============================================================ */
+const SUPABASE_URL      = 'https://hshmyqmbogjoowrksbav.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzaG15cW1ib2dqb293cmtzYmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMDM0MDEsImV4cCI6MjA5Nzc3OTQwMX0.uBhZBjonz321oj1-wRdGGn6qC7YYQw-sxz-bqznxDTg';
+
+/* ── init client ── */
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: false }
+});
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = id => document.getElementById(id);
+function isValidEmail(e){ return /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(e.trim()) }
+
+function setLoading(btnId, labelId, loading) {
+  const btn = $(btnId), lbl = $(labelId);
+  if (!btn) return;
+  btn.disabled = loading;
+  if (loading) {
+    lbl.innerHTML = '<span class="spinner"></span>';
+  } else {
+    // restore original label text
+    lbl.textContent = btn.dataset.originalLabel || 'Join the Waitlist';
+  }
+}
+
+function showInlineErr(errId, msg) {
+  const el = $(errId); if (!el) return;
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+function clearErr(errId) { const el=$(errId); if(el) el.classList.remove('show') }
+
+function showSuccess(formWrapId, successId) {
+  const fw = $(formWrapId), sc = $(successId);
+  if (fw) fw.style.display = 'none';
+  if (sc) sc.style.display = 'block';
+}
+
+/* ============================================================
+   WAITLIST SUBMISSION
+   ============================================================ */
+async function submitWaitlist(which) {
+  const isTop = which === 'top';
+  const emailEl  = $(isTop ? 'topEmail'    : 'bottomEmail');
+  const nameEl   = $(isTop ? 'topName'     : 'bottomName');
+  const amountEl = $(isTop ? 'topAmount'   : 'bottomAmount');
+  const emailErr = isTop ? 'topEmailErr'   : 'bottomEmailErr';
+  const genErr   = isTop ? 'topGenErr'     : 'bottomGenErr';
+  const btnId    = isTop ? 'topBtn'        : 'bottomBtn';
+  const lblId    = isTop ? 'topBtnLabel'   : 'bottomBtnLabel';
+
+  // store label for restore
+  $(btnId).dataset.originalLabel = 'Join the Waitlist';
+
+  clearErr(emailErr); clearErr(genErr);
+
+  const emailVal = emailEl.value.trim();
+  if (!emailVal) {
+    emailEl.classList.add('error'); setTimeout(() => emailEl.classList.remove('error'), 1500);
+    showInlineErr(emailErr, 'Email address is required.'); return;
+  }
+  if (!isValidEmail(emailVal)) {
+    emailEl.classList.add('error'); setTimeout(() => emailEl.classList.remove('error'), 1500);
+    showInlineErr(emailErr, 'Please enter a valid email address.'); return;
+  }
+
+  setLoading(btnId, lblId, true);
+
+  try {
+    const { error } = await sb.from('waitlist').insert({
+      email:            emailVal.toLowerCase(),
+      first_name:       nameEl.value.trim() || null,
+      investment_range: amountEl.value || null,
+      source:           which === 'top' ? 'waitlist_top' : 'waitlist_bottom',
+    });
+
+    if (error) {
+      if (error.code === '23505') {
+        // duplicate email — still show success (graceful)
+        showSuccess(isTop ? 'topFormWrap' : 'bottomFormWrap', isTop ? 'topSuccess' : 'bottomSuccess');
+        refreshCount();
+        return;
+      }
+      throw error;
+    }
+
+    showSuccess(isTop ? 'topFormWrap' : 'bottomFormWrap', isTop ? 'topSuccess' : 'bottomSuccess');
+    refreshCount();
+
+  } catch (err) {
+    console.error('Waitlist error:', err);
+    setLoading(btnId, lblId, false);
+    showInlineErr(genErr, 'Something went wrong. Please try again.');
+  }
+}
+
+/* ============================================================
+   LIVE COUNT
+   ============================================================ */
+async function refreshCount() {
+  try {
+    const { count } = await sb.from('waitlist').select('*', { count: 'exact', head: true });
+    const n = (count ?? 0).toLocaleString();
+    ['topCount','bottomCount'].forEach(id => { const el=$(id); if(el) el.textContent = n; });
+  } catch(e) { /* silent */ }
+}
+
+/* ============================================================
+   SURVEY
+   ============================================================ */
+let surveyStep = 1;
+const surveyData = { sq1:'', sq2:'', sq3:'', sq4:'' };
+
+function pickOpt(btn, groupId, val) {
+  document.querySelectorAll(`#${groupId} .survey-opt`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  surveyData[groupId] = val;
+  $('surveyNextBtn').disabled = false;
+}
+
+async function surveyAdvance() {
+  if (surveyStep < 4) {
+    jumpToStep(surveyStep + 1);
+  } else {
+    await saveSurvey();
+  }
+}
+function surveyPrev() { if (surveyStep > 1) jumpToStep(surveyStep - 1); }
+
+function jumpToStep(n) {
+  $('ss' + surveyStep).classList.remove('active');
+  surveyStep = n;
+  $('ss' + n).classList.add('active');
+  syncSurveyUI();
+}
+
+function syncSurveyUI() {
+  for (let i = 1; i <= 4; i++) {
+    const d = $('pd' + i);
+    d.className = 'prog-dot';
+    if (i < surveyStep)     d.classList.add('done');
+    else if (i === surveyStep) d.classList.add('active');
+  }
+  $('surveyBack').disabled = (surveyStep === 1);
+  $('surveyStepLabel').textContent = surveyStep + ' of 4';
+  const nextBtn = $('surveyNextBtn');
+  nextBtn.disabled = !surveyData['sq' + surveyStep];
+  nextBtn.innerHTML = surveyStep === 4
+    ? '<span id="surveyNextLabel">Submit ✓</span>'
+    : '<span id="surveyNextLabel">Next →</span>';
+}
+
+async function saveSurvey() {
+  const nextBtn = $('surveyNextBtn');
+  nextBtn.disabled = true;
+  nextBtn.innerHTML = '<span class="spinner" style="border-color:rgba(8,10,15,.3);border-top-color:#080A0F"></span>';
+
+  try {
+    // Upsert — if email known from waitlist use upsert, else insert survey-only row
+    const { error } = await sb.from('waitlist').upsert({
+      email:               `survey_${Date.now()}@cm50.internal`, // anonymous if no email
+      reason:              surveyData.sq2 || null,
+      investing_frequency: surveyData.sq3 || null,
+      objection:           surveyData.sq4 || null,
+      investment_range:    surveyData.sq1 || null,
+      source:              'survey',
+    }, { onConflict: 'email', ignoreDuplicates: false });
+
+    if (error && error.code !== '23505') throw error;
+  } catch(err) {
+    console.error('Survey save error:', err);
+    // still show success — don't penalise user for transient error
+  }
+
+  // hide steps + nav
+  for (let i = 1; i <= 4; i++) $('ss'+i).style.display = 'none';
+  $('surveyNav').style.display = 'none';
+  $('surveyProgress').style.display = 'none';
+  const suc = $('surveySuccess'); suc.style.display = 'block';
+
+  // show count
+  try {
+    const { count } = await sb.from('waitlist').select('*', { count:'exact', head:true });
+    $('surveyCount').textContent = (count ?? 0).toLocaleString();
+  } catch(e) {}
+}
+
+/* ============================================================
+   COMPOSITION BARS
+   ============================================================ */
+[
+  {name:'Bitcoin',pct:20.0},{name:'Ethereum',pct:16.4},{name:'Solana',pct:9.2},
+  {name:'BNB',pct:7.1},{name:'XRP',pct:6.8},{name:'Avalanche',pct:4.3},
+  {name:'Cardano',pct:3.9},{name:'Chainlink',pct:3.1},{name:'Polkadot',pct:2.7},{name:'Sui',pct:2.4},
+].forEach(h => {
+  const row = document.createElement('div'); row.className = 'comp-row';
+  row.innerHTML = `<span class="comp-name">${h.name}</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${(h.pct/20)*100}%"></div></div><span class="comp-pct">${h.pct.toFixed(1)}%</span>`;
+  $('compRows').appendChild(row);
+});
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item'), isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+/* ============================================================
+   INIT
+   ============================================================ */
+refreshCount();
+syncSurveyUI();
+</script>
+</body>
+</html>
